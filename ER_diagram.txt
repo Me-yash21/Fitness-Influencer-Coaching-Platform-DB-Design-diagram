@@ -1,0 +1,126 @@
+users[icon: user, color: Green]{
+  id serial pk
+  name string
+  email string UNIQUE
+  phone string
+  password string
+  role enum[trainer,client] Default client
+
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+fitness_subscriptions[icon: clipboard, color: Red]{
+  id serial pk
+  trainerId int fk
+  diet_plan_id int fk
+  workout_plan_id int fk
+  price int 
+  description text 
+}
+
+diet_plans[icon: apple, color: Orange]{
+  id serial pk 
+  createdBy int fk
+  breakfast string
+  lunch string
+  sanck string
+  dinner string
+
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+workout_plans[icon: dumbbell, color: Orange]{
+  id serial pk
+  createdBy int fk
+  monday_plan string
+  tuesday_plan string
+  wednesday_plan string
+  thursday_plan string
+  friday_plan string
+  saturday_plan string
+  sunday_plan  string
+
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+session_schedules [icon: pencil, color: Blue]{
+  id serial pk
+  subscription_planId int fk
+  session_title text 
+  session_schedule_time timestamp not null
+  session_link string not null
+
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+enrollments[icon: database, color: Green]{
+  id serial pk
+  clientId int fk
+  subscription_planId int fk
+  enrollmentNo unique(subscription_planId,clientId)
+}
+
+checkin_weeks[icon: calendar] {
+  id serial pk
+  week_start_date timestamp
+  week_end_date timestamp
+}
+
+client_checkins[icon: checklist, styleMode: plain, color: Purple]{
+  id serial pk
+  week_id int fk
+  clientId int fk
+
+  monday_check boolean
+  tuesday_check boolean
+  wednesday_check boolean
+  thursday_check boolean
+  friday_check boolean
+  saturday_check boolean
+  sunday_check boolean
+}
+client_progress[icon: graph, color: Black]{
+  id serial pk
+  clientId int fk
+  weight decimal
+  height decimal
+
+  client_checkin_id int fk
+}
+
+payments[icon: rupee]{
+  id serial pk
+  subscription_planId int fk
+  clientId int fk
+  payment_mode enum[upi,card,wallet]
+  payment_status enum[failed,pending,success]
+  amount decimal
+
+  createdAt timestamp
+}
+
+fitness_subscriptions.trainerId > users.id
+fitness_subscriptions.diet_plan_id - diet_plans.id
+fitness_subscriptions.workout_plan_id - workout_plans.id
+
+diet_plans.createdBy > users.id
+workout_plans.createdBy > users.id
+
+session_schedules.subscription_planId > fitness_subscriptions.id
+
+enrollments.clientId > users.id
+enrollments.subscription_planId > fitness_subscriptions.id
+
+checkin_weeks.id < client_checkins.week_id
+
+client_checkins.clientId > users.id
+
+client_progress.clientId - users.id
+client_progress.client_checkin_id - client_checkins.id
+
+payments.subscription_planId > fitness_subscriptions.id
+payments.clientId  > users.id
